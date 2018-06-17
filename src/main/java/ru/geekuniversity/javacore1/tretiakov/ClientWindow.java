@@ -3,10 +3,19 @@ package ru.geekuniversity.javacore1.tretiakov;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Scanner;
 
 public class ClientWindow extends JFrame {
+    private final String SERVER_ADDR = "Localhost";
+    private final int SERVER_PORT = 8189 ;
+    private Socket sock ;
+    private Scanner scanner;
+    private PrintWriter ptw ;
 
     JTextArea jta;
     JTextField jtf;
@@ -15,6 +24,15 @@ public class ClientWindow extends JFrame {
     JFrame frame;
 
     public  ClientWindow (){
+
+        try {
+            sock = new Socket ( SERVER_ADDR, SERVER_PORT );
+            scanner = new Scanner ( sock.getInputStream ());
+            ptw = new PrintWriter ( sock.getOutputStream ());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         frame = new JFrame();
         setTitle("Chat");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -45,8 +63,8 @@ public class ClientWindow extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if(!jtf.getText().trim().isEmpty()) {
-                    sendMsg();
                     System.out.println("Your message: " + jtf.getText());
+                    sendMsg();
                     jtf.setText("");
                 }
             }
@@ -56,24 +74,46 @@ public class ClientWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(!jtf.getText().trim().isEmpty()) {
-                    sendMsg();
                     System.out.println("Your message: " + jtf.getText());
+                    sendMsg();
                     jtf.setText("");
                 }
             }
         });
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (true){
+                        if(scanner.hasNext()){
+                            String msg = scanner.nextLine();
+                            if(msg.equalsIgnoreCase("End session")) break;
+                            jta.append(msg);
+                            jta.append("\n");
+                        }
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
         setVisible(true);
     }
 
     void sendMsg() {
-        String out = jtf.getText();
-        jta.append(getTime() + ": " + out + "\n");
+
+        ptw.println(jtf.getText());
+        jta.append(getTime() + ": ");
+        ptw.flush();
+        jtf.setText("");
         jtf.grabFocus();
     }
 
     String getTime() {
         return new SimpleDateFormat("HH:mm").format(new Date());
     }
+
 }
 
