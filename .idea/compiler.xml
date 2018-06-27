@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="javacore_tretiakov_lesson4" target="6" />
+      <module name="javacore_tretiakov_lesson4" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>
