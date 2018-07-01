@@ -8,8 +8,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class ClientConnection implements ServerConst, ServerAPI {
     Socket socket;
@@ -82,14 +80,4 @@ public class ClientConnection implements ServerConst, ServerAPI {
             e.printStackTrace();
         }
     }
-
-    public void disconnect(){
-        try{
-            out.writeUTF(CLOSE_CONNECTION);
-            socket.close();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-    }
-
 }
