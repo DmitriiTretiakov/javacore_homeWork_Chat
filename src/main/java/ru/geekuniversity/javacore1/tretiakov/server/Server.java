@@ -1,5 +1,6 @@
 package ru.geekuniversity.javacore1.tretiakov.server;
 
+import ru.geekuniversity.javacore1.tretiakov.ServerAPI;
 import ru.geekuniversity.javacore1.tretiakov.ServerConst;
 
 import java.io.IOException;
@@ -7,7 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
 
-public class Server implements ServerConst {
+public class Server implements ServerConst, ServerAPI {
 
     private ServerSocket server;
     private Vector< ClientHandler > clients;
@@ -47,16 +48,35 @@ public class Server implements ServerConst {
         }
     }
 
-    public void sendMessageTo(String nick, String message){
+    public void broadcastUsersList(){
+        StringBuffer sb = new StringBuffer(USERS_LIST);
         for(ClientHandler client : clients){
-            if (nick.equalsIgnoreCase(client.getNick())) {
-                client.sendMessage(message);
-            }
+            sb.append(" " + client.getNick());
         }
+        broadcast(sb.toString());
     }
 
+    public void sendPrivateMessage(ClientHandler from, String to, String msg){
+        boolean nickFound = false;
+        for(ClientHandler client : clients){
+            if(client.getNick().equals(to)){
+                nickFound = true;
+                client.sendMessage("from: " + from.getNick() + ": " + msg);
+                from.sendMessage("to: " + to + " msg: " + msg);
+                break;
+            }
+        }
+        if(!nickFound) from.sendMessage("User not found!");
+    }
     public void unsubscribeMe(ClientHandler c){
         clients.remove(c);
+        broadcastUsersList();
+    }
+    public boolean isNickBusy(String nick){
+        for(ClientHandler client : clients){
+            if(client.getNick().equals(nick)) return true;
+        }
+        return false;
     }
 
 }

@@ -68,7 +68,7 @@ public class ClientConnection implements ServerConst, ServerAPI {
 
     public void sendMessage(String message){
         try{
-            out.writeUTF(getTime() + ": " + message);
+            out.writeUTF(message);
             out.flush();
         }catch(IOException e){
             e.printStackTrace();
@@ -92,7 +92,4 @@ public class ClientConnection implements ServerConst, ServerAPI {
         }
     }
 
-    String getTime() {
-        return new SimpleDateFormat("HH:mm").format(new Date());
-    }
 }

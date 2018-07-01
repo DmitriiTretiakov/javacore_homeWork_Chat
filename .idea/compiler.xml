@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="javacore_tretiakov_lesson4" />
+        <module name="javacore_tretiakov_lesson8" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="javacore_tretiakov_lesson4" target="8" />
+      <module name="javacore_tretiakov_lesson8" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>

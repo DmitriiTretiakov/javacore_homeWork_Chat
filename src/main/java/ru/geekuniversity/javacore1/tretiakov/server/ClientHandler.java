@@ -6,6 +6,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ClientHandler implements ServerAPI {
     private Server server;
@@ -13,6 +15,7 @@ public class ClientHandler implements ServerAPI {
     private DataInputStream in;
     private DataOutputStream out;
     private String nick;
+    private static final String UNDEFINED = "undefined";
 
     public ClientHandler(Server server, Socket socket){
         try{
@@ -20,6 +23,7 @@ public class ClientHandler implements ServerAPI {
             this.socket = socket;
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
+            this.nick = UNDEFINED;
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -36,8 +40,10 @@ public class ClientHandler implements ServerAPI {
                             this.nick = nick;
                             server.broadcast(this.nick + " has entered the chat room");
                             break;
-                        }else sendMessage("Wrong login/password!");
-                    }else sendMessage("You should authorize first!");
+                        } else sendMessage("Wrong login/password!");
+                        disconnectAfterTime();
+                    } else sendMessage("This account is already in use!");
+                    disconnectAfterTime();
                 }
 
                 while(true){
@@ -45,15 +51,14 @@ public class ClientHandler implements ServerAPI {
                     if(message.startsWith(SYSTEM_SYMBOL)){
                         if(message.equalsIgnoreCase(CLOSE_CONNECTION))
                             break;
-                        String[] strings = message.split(" ", 3);
-                        if (strings[0].equals(PRIVATE_MESSAGE)){
-                            sendMessage("To " + strings[1] + ": " + strings[2]);
-                            server.sendMessageTo(strings[1], strings[2]);
-                        }
-                        else sendMessage("Command doesn't exist!");
+                        else if(message.startsWith(PRIVATE_MESSAGE)){
+                            String nameTo = message.split(" ")[1];
+                            String messageText = message.substring(PRIVATE_MESSAGE.length() + nameTo.length() + 2);
+                            server.sendPrivateMessage(this, nameTo, messageText);
+                        }else sendMessage("Command doesn't exist!");
                     }else {
                         System.out.println("client " + message);
-                        server.broadcast(message);
+                        server.broadcast(getTime() + ":  " + this.nick + ": " + message);
                     }
                 }
             }catch(IOException e){
@@ -82,7 +87,23 @@ public class ClientHandler implements ServerAPI {
         }
     }
 
+    private void disconnectAfterTime(){
+        new Thread(()-> {
+            try{ Thread.sleep(120000);
+            }catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if(nick.equals(UNDEFINED)){
+                disconnect();
+            }
+        }).start();
+    }
+
     public String getNick() {
         return nick;
+    }
+
+    String getTime() {
+        return new SimpleDateFormat("HH:mm").format(new Date());
     }
 }

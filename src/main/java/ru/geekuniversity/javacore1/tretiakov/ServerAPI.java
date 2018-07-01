@@ -6,4 +6,5 @@ public interface ServerAPI {
     String AUTH = "/auth";
     String AUTH_SUCCESSFUl = "/authok";
     String PRIVATE_MESSAGE = "/w";
+    String USERS_LIST = "/userslist";
 }
